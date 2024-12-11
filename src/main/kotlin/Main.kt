@@ -8,53 +8,59 @@ fun main() {
     commisionCalculate(1000000, CardsType.VISA)
 }
 
+var LIMIT_TEXT = "Извините Ваши лимиты превышены, перевод не не выполнен(("
+var COMMISION_TAXES_TEXT = "Сумма коммисии составила:"
+val MASTER_CARD_COMMITSION_LIMIT = 75_000
+val MONTH_LIMITS = 600_000
+val DAY_LIMITS = 150_000
 fun commisionCalculate(
     transferAmount: Int,
     cardType: CardsType = CardsType.MIR,
     amountOfPreviousTransactions: Int = 0
 ) {
-    val masterCardCommisionLimit = 75_000
-    val mounthLimits = 650_00
-    val dayLimit = 150_00
-    var taxesSum = 0.0
+
     when (cardType) {
-        CardsType.MC -> taxesSum + calculateComissionForMC(
-            dayLimit,
-            mounthLimits,
+        CardsType.MC -> calculateComissionForMC(
+            DAY_LIMITS,
+            MONTH_LIMITS,
             transferAmount,
             amountOfPreviousTransactions,
-            masterCardCommisionLimit
+            MASTER_CARD_COMMITSION_LIMIT
         )
 
-        CardsType.VISA -> taxesSum + calculateComissionForVISA(
-            dayLimit,
-            mounthLimits,
+        CardsType.VISA -> calculateComissionForVISA(
+            DAY_LIMITS,
+            MONTH_LIMITS,
             transferAmount,
             amountOfPreviousTransactions
         )
 
-        CardsType.MIR -> taxesSum + 0
+        CardsType.MIR -> println("$COMMISION_TAXES_TEXT 0")
     }
 
-    println(taxesSum)
 }
 
 private fun calculateComissionForMC(
     dayLimit: Int, monthLimit: Int, transferAmount: Int, prevTransactionsAmount: Int, mcLimit: Int
-): Double {
-    return if ((transferAmount >= dayLimit) || (prevTransactionsAmount + transferAmount >= monthLimit) || (transferAmount + prevTransactionsAmount <= mcLimit)) {
-        0.0
+) {
+
+    if ((transferAmount >= dayLimit) || (prevTransactionsAmount + transferAmount >= monthLimit)) {
+        println(LIMIT_TEXT)
+    } else if ((transferAmount + prevTransactionsAmount <= mcLimit)) {
+        println("$COMMISION_TAXES_TEXT 0")
     } else
-        ((((transferAmount + prevTransactionsAmount) - mcLimit) * 0.6 / 100) + 20)
+        println("$COMMISION_TAXES_TEXT " + ((transferAmount * 0.6 / 100) + 20))
 }
 
 private fun calculateComissionForVISA(
     dayLimit: Int, monthLimit: Int, transferAmount: Int, prevTransactionsAmount: Int
-): Double {
-    return if ((transferAmount >= dayLimit) || (prevTransactionsAmount + transferAmount >= monthLimit)) {
-        0.0
-    } else
-        if (transferAmount * 0.75 / 100 > 35) ((transferAmount * 0.75 / 100)) else 35.0
+) {
+    if ((transferAmount >= dayLimit) || (prevTransactionsAmount + transferAmount >= monthLimit)) {
+        println(LIMIT_TEXT)
+    } else if (transferAmount * 0.75 / 100 > 35) {
+        println("$COMMISION_TAXES_TEXT " + ((transferAmount * 0.75 / 100)))
+    } else println("$COMMISION_TAXES_TEXT 35.0")
+
 }
 
 enum class CardsType {
